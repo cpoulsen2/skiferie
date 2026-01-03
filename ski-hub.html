@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skiferie 2025 - Ski Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+    .animate-float { animation: float 6s ease-in-out infinite; }
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+    
+    /* Farve-celler til ugeplanen */
+    .cell-rose { background: rgba(244, 63, 94, 0.25); border: 1px solid rgba(251, 113, 133, 0.4); }
+    .cell-emerald { background: rgba(16, 185, 129, 0.25); border: 1px solid rgba(52, 211, 153, 0.4); }
+    .cell-sky { background: rgba(14, 165, 233, 0.25); border: 1px solid rgba(56, 189, 248, 0.4); }
+    .cell-amber { background: rgba(245, 158, 11, 0.25); border: 1px solid rgba(251, 191, 36, 0.4); }
+    .cell-violet { background: rgba(139, 92, 246, 0.25); border: 1px solid rgba(167, 139, 250, 0.4); }
+    .cell-empty { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+  
+  <!-- Animated background -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-20 left-10 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+    <div class="absolute top-1/2 left-1/2 w-72 h-72 bg-emerald-500/5 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
+    <div id="snowflakes"></div>
+  </div>
+
+  <div class="relative z-10 max-w-7xl mx-auto px-4 py-8">
+    
+    <!-- Header -->
+    <header class="text-center mb-12">
+      <div class="inline-flex items-center gap-3 mb-4">
+        <span class="text-4xl">🎿</span>
+        <h1 class="text-4xl md:text-6xl font-black bg-gradient-to-r from-sky-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          Skiferie 2025
+        </h1>
+        <span class="text-4xl">🏔️</span>
+      </div>
+      <p class="text-white/60 text-lg">Ugeplan & Koordinering</p>
+    </header>
+
+    <!-- Countdown -->
+    <section class="mb-12">
+      <div class="glass rounded-3xl p-8 border border-white/10 shadow-2xl">
+        <div class="flex items-center justify-center gap-2 mb-6">
+          <span class="text-xl">⛴️</span>
+          <h2 class="text-lg font-semibold text-white/80">Nedtælling til færge afgang mod Trysil</h2>
+        </div>
+        <div class="flex justify-center gap-4 md:gap-8" id="countdown">
+          <div class="flex flex-col items-center">
+            <div class="bg-white/10 backdrop-blur-md rounded-xl px-4 py-3 border border-white/20 shadow-xl min-w-[70px] md:min-w-[90px] text-center">
+              <span class="text-3xl md:text-5xl font-bold text-white tabular-nums" id="days">--</span>
+            </div>
+            <span class="text-xs md:text-sm text-white/60 mt-2 uppercase tracking-wider">Dage</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="bg-white/10 backdrop-blur-md rounded-xl px-4 py-3 border border-white/20 shadow-xl min-w-[70px] md:min-w-[90px] text-center">
+              <span class="text-3xl md:text-5xl font-bold text-white tabular-nums" id="hours">--</span>
+            </div>
+            <span class="text-xs md:text-sm text-white/60 mt-2 uppercase tracking-wider">Timer</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="bg-white/10 backdrop-blur-md rounded-xl px-4 py-3 border border-white/20 shadow-xl min-w-[70px] md:min-w-[90px] text-center">
+              <span class="text-3xl md:text-5xl font-bold text-white tabular-nums" id="minutes">--</span>
+            </div>
+            <span class="text-xs md:text-sm text-white/60 mt-2 uppercase tracking-wider">Min</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="bg-white/10 backdrop-blur-md rounded-xl px-4 py-3 border border-white/20 shadow-xl min-w-[70px] md:min-w-[90px] text-center">
+              <span class="text-3xl md:text-5xl font-bold text-white tabular-nums" id="seconds">--</span>
+            </div>
+            <span class="text-xs md:text-sm text-white/60 mt-2 uppercase tracking-wider">Sek</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Participants -->
+    <section class="mb-12">
+      <div class="flex items-center gap-2 mb-6">
+        <span class="text-xl">👥</span>
+        <h2 class="text-2xl font-bold">Deltagere</h2>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="bg-rose-500/20 backdrop-blur-md rounded-2xl p-5 border border-rose-400/30 hover:scale-105 transition-transform">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-rose-400 to-rose-500 flex items-center justify-center mb-3 shadow-lg text-xl">👫</div>
+          <p class="font-semibold text-rose-300">Søren</p>
+          <p class="font-semibold text-rose-300">Mathilde</p>
+        </div>
+        <div class="bg-emerald-500/20 backdrop-blur-md rounded-2xl p-5 border border-emerald-400/30 hover:scale-105 transition-transform">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center mb-3 shadow-lg text-xl">👫</div>
+          <p class="font-semibold text-emerald-300">Chris</p>
+          <p class="font-semibold text-emerald-300">Kris</p>
+        </div>
+        <div class="bg-sky-500/20 backdrop-blur-md rounded-2xl p-5 border border-sky-400/30 hover:scale-105 transition-transform">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-sky-500 flex items-center justify-center mb-3 shadow-lg text-xl">👫</div>
+          <p class="font-semibold text-sky-300">Esben</p>
+          <p class="font-semibold text-sky-300">Cecilie</p>
+        </div>
+        <div class="bg-amber-500/20 backdrop-blur-md rounded-2xl p-5 border border-amber-400/30 hover:scale-105 transition-transform">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center mb-3 shadow-lg text-xl">👫</div>
+          <p class="font-semibold text-amber-300">Kugge</p>
+          <p class="font-semibold text-amber-300">Jet</p>
+        </div>
+        <div class="bg-violet-500/20 backdrop-blur-md rounded-2xl p-5 border border-violet-400/30 hover:scale-105 transition-transform">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-violet-400 to-violet-500 flex items-center justify-center mb-3 shadow-lg text-xl">🧑</div>
+          <p class="font-semibold text-violet-300">Jens</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Schedule Grid - Desktop -->
+    <section class="mb-12 hidden lg:block">
+      <div class="flex items-center gap-2 mb-6">
+        <span class="text-xl">📅</span>
+        <h2 class="text-2xl font-bold">Ugeplan</h2>
+      </div>
+      <div class="glass rounded-3xl border border-white/10 overflow-hidden" id="desktop-schedule"></div>
+    </section>
+
+    <!-- Schedule Cards - Mobile -->
+    <section class="mb-12 lg:hidden">
+      <div class="flex items-center gap-2 mb-6">
+        <span class="text-xl">📅</span>
+        <h2 class="text-2xl font-bold">Ugeplan</h2>
+      </div>
+      <div class="space-y-3" id="mobile-schedule"></div>
+    </section>
+
+    <!-- Meal Planning -->
+    <section class="mb-12">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">👨‍🍳</span>
+          <h2 class="text-2xl font-bold">Madplan</h2>
+        </div>
+        <button onclick="copyMealPlan()" id="copy-btn" class="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl transition-colors border border-white/10">
+          <span>📋</span>
+          <span class="text-sm" id="copy-text">Del madplan</span>
+        </button>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="meal-plan"></div>
+    </section>
+
+    <!-- Bring Items -->
+    <section class="mb-12">
+      <div class="flex items-center gap-2 mb-6">
+        <span class="text-xl">📦</span>
+        <h2 class="text-2xl font-bold">Medbring</h2>
+      </div>
+      
+      <!-- Everyone brings -->
+      <div class="glass rounded-2xl p-6 border border-white/10 mb-6">
+        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+          <span>🍷</span>
+          Alle medbringer
+        </h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div class="flex items-center gap-2 text-white/80"><div class="w-2 h-2 rounded-full bg-purple-400"></div><span class="text-sm">2 x 1,5 liter sodavand</span></div>
+          <div class="flex items-center gap-2 text-white/80"><div class="w-2 h-2 rounded-full bg-purple-400"></div><span class="text-sm">2 pakker rugbrød</span></div>
+          <div class="flex items-center gap-2 text-white/80"><div class="w-2 h-2 rounded-full bg-purple-400"></div><span class="text-sm">2 x frokostpålæg</span></div>
+          <div class="flex items-center gap-2 text-white/80"><div class="w-2 h-2 rounded-full bg-purple-400"></div><span class="text-sm">1 x ost</span></div>
+          <div class="flex items-center gap-2 text-white/80"><div class="w-2 h-2 rounded-full bg-purple-400"></div><span class="text-sm">4 poser slik/chokolade</span></div>
+          <div class="flex items-center gap-2 text-white/80"><div class="w-2 h-2 rounded-full bg-purple-400"></div><span class="text-sm">2 poser chips</span></div>
+          <div class="flex items-center gap-2 text-white/80"><div class="w-2 h-2 rounded-full bg-purple-400"></div><span class="text-sm">2 x vin</span></div>
+          <div class="flex items-center gap-2 text-white/80"><div class="w-2 h-2 rounded-full bg-purple-400"></div><span class="text-sm">Sengelinned og håndklæder</span></div>
+          <div class="flex items-center gap-2 text-white/80"><div class="w-2 h-2 rounded-full bg-purple-400"></div><span class="text-sm">Krydderier</span></div>
+        </div>
+      </div>
+
+      <!-- Individual items -->
+      <div class="grid md:grid-cols-2 gap-4" id="bring-items"></div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center text-white/40 text-sm py-8">
+      <p>🎿 God skiferie! 🏔️</p>
+    </footer>
+  </div>
+
+  <script>
+    // Data
+    var DEPARTURE_DATE = new Date(2026, 0, 24, 8, 0, 0); // 24. januar 2026 kl. 8:00
+    
+    var SCHEDULE = [
+      { day: 'Lørdag', date: '24/1', morgenmad: null, morgenopvask: null, aftensmad: 'Chris og Kris', aftenopvask: 'Kugge og Jet' },
+      { day: 'Søndag', date: '25/1', morgenmad: 'Søren og Mathilde', morgenopvask: 'Chris og Kris', aftensmad: 'Kugge og Jet', aftenopvask: 'Esben og Cecilie' },
+      { day: 'Mandag', date: '26/1', morgenmad: 'Chris og Kris', morgenopvask: 'Kugge og Jet', aftensmad: 'Esben og Cecilie', aftenopvask: 'Chris og Kris' },
+      { day: 'Tirsdag', date: '27/1', morgenmad: 'Søren og Mathilde', morgenopvask: 'Esben og Cecilie', aftensmad: 'Søren og Mathilde', aftenopvask: 'Kugge og Jet' },
+      { day: 'Onsdag', date: '28/1', morgenmad: 'Chris og Kris', morgenopvask: 'Søren og Mathilde', aftensmad: 'Chris og Kris', aftenopvask: 'Esben og Cecilie' },
+      { day: 'Torsdag', date: '29/1', morgenmad: 'Søren og Mathilde', morgenopvask: 'Esben og Cecilie', aftensmad: 'Søren og Mathilde', aftenopvask: 'Kugge og Jet' },
+      { day: 'Fredag', date: '30/1', morgenmad: 'Chris og Kris', morgenopvask: 'Kugge og Jet', aftensmad: 'Esben og Cecilie', aftenopvask: 'Søren og Mathilde' }
+    ];
+
+    var BRING_ITEMS = {
+      'Søren og Mathilde': { color: 'rose', items: ['2 x hvedemel', 'Bageenzym', 'Makrel', 'Mayo + remu', '3 x mælk', 'Bananer og æbler', 'Cornflakes', '15 æg', 'Saftevand'] },
+      'Chris og Kris': { color: 'emerald', items: ['2 x havregryn', '2 x groft mel', 'Tørgær', '2 x smør', '2 x mælk', 'Rosiner', 'Honning', 'Strøh rom', '1 ps. gulerødder'] },
+      'Esben og Cecilie': { color: 'sky', items: ['Opvasketabs', 'Agurk, tomat og peberfrugt', 'Nutella', 'Instantkaffe', 'Marmelade', 'Olie', 'Juice', 'Popcorn microovn'] },
+      'Kugge og Jet': { color: 'amber', items: ['Pålægschokolade (til hver dag)', 'The', '4x Kakao til varm kakao', 'Toiletpapir, køkkenrulle, klude', '2 x smør', 'Salt og peber', 'Chokoladekiks', 'Mandariner/appelsiner', '2 x håndsæbe', '15 æg', '2 x pandekagemix'] },
+      'Jens': { color: 'violet', items: ['Blandet øl', '5x Sprayflødeskum'] }
+    };
+
+    // State
+    var meals = {};
+    var expandedBring = {};
+    var expandedDays = {};
+
+    // Load meals from localStorage
+    try {
+      var saved = localStorage.getItem('skiHubMeals');
+      if (saved) meals = JSON.parse(saved);
+    } catch (e) {
+      console.log('Could not load meals');
+    }
+
+    // Get color class for name
+    function getColorClass(name) {
+      if (!name) return 'cell-empty';
+      var n = name.toLowerCase();
+      if (n.indexOf('søren') >= 0 || n.indexOf('mathilde') >= 0) return 'cell-rose';
+      if (n.indexOf('chris') >= 0 || n.indexOf('kris') >= 0) return 'cell-emerald';
+      if (n.indexOf('esben') >= 0 || n.indexOf('cecilie') >= 0) return 'cell-sky';
+      if (n.indexOf('kugge') >= 0 || n.indexOf('jet') >= 0) return 'cell-amber';
+      if (n === 'jens') return 'cell-violet';
+      return 'cell-empty';
+    }
+
+    function getTextColor(name) {
+      if (!name) return 'text-white/40';
+      var n = name.toLowerCase();
+      if (n.indexOf('søren') >= 0 || n.indexOf('mathilde') >= 0) return 'text-rose-200';
+      if (n.indexOf('chris') >= 0 || n.indexOf('kris') >= 0) return 'text-emerald-200';
+      if (n.indexOf('esben') >= 0 || n.indexOf('cecilie') >= 0) return 'text-sky-200';
+      if (n.indexOf('kugge') >= 0 || n.indexOf('jet') >= 0) return 'text-amber-200';
+      if (n === 'jens') return 'text-violet-200';
+      return 'text-white/40';
+    }
+
+    // Countdown
+    function updateCountdown() {
+      var now = new Date();
+      var diff = DEPARTURE_DATE.getTime() - now.getTime();
+      
+      if (diff > 0) {
+        var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        document.getElementById('days').textContent = days < 10 ? '0' + days : days;
+        document.getElementById('hours').textContent = hours < 10 ? '0' + hours : hours;
+        document.getElementById('minutes').textContent = minutes < 10 ? '0' + minutes : minutes;
+        document.getElementById('seconds').textContent = seconds < 10 ? '0' + seconds : seconds;
+      } else {
+        document.getElementById('days').textContent = '00';
+        document.getElementById('hours').textContent = '00';
+        document.getElementById('minutes').textContent = '00';
+        document.getElementById('seconds').textContent = '00';
+      }
+    }
+
+    // Desktop schedule with colored cells
+    function renderDesktopSchedule() {
+      var container = document.getElementById('desktop-schedule');
+      
+      var headerRow = '<tr class="bg-slate-800/80"><th class="p-4 text-left text-white/60 font-bold border-b border-white/10">Opgave</th>';
+      for (var i = 0; i < SCHEDULE.length; i++) {
+        var d = SCHEDULE[i];
+        headerRow += '<th class="p-4 text-center border-b border-white/10"><div class="font-bold">' + d.day + '</div><div class="text-sm text-white/60">' + d.date + '</div></th>';
+      }
+      headerRow += '</tr>';
+
+      var morgenmadRow = '<tr><td class="p-4 font-medium bg-slate-800/30">☕ Morgenmad kl 8</td>';
+      for (var i = 0; i < SCHEDULE.length; i++) {
+        var d = SCHEDULE[i];
+        morgenmadRow += '<td class="p-3 text-center ' + getColorClass(d.morgenmad) + ' rounded-lg m-1"><span class="' + getTextColor(d.morgenmad) + ' font-medium text-sm">' + (d.morgenmad || '-') + '</span></td>';
+      }
+      morgenmadRow += '</tr>';
+
+      var morgenopvaskRow = '<tr><td class="p-4 font-medium bg-slate-800/30">✨ Morgenopvask</td>';
+      for (var i = 0; i < SCHEDULE.length; i++) {
+        var d = SCHEDULE[i];
+        morgenopvaskRow += '<td class="p-3 text-center ' + getColorClass(d.morgenopvask) + ' rounded-lg m-1"><span class="' + getTextColor(d.morgenopvask) + ' font-medium text-sm">' + (d.morgenopvask || '-') + '</span></td>';
+      }
+      morgenopvaskRow += '</tr>';
+
+      var aftensmadRow = '<tr><td class="p-4 font-medium bg-slate-800/30">👨‍🍳 Aftensmad 17:45</td>';
+      for (var i = 0; i < SCHEDULE.length; i++) {
+        var d = SCHEDULE[i];
+        var meal = meals[d.date] || '';
+        var mealHtml = meal ? '<div class="text-xs text-white/70 mt-1 italic">🍽️ ' + meal + '</div>' : '';
+        aftensmadRow += '<td class="p-3 text-center ' + getColorClass(d.aftensmad) + ' rounded-lg m-1"><span class="' + getTextColor(d.aftensmad) + ' font-medium text-sm">' + (d.aftensmad || '-') + '</span>' + mealHtml + '</td>';
+      }
+      aftensmadRow += '</tr>';
+
+      var aftenopvaskRow = '<tr><td class="p-4 font-medium bg-slate-800/30">🍽️ Aftenopvask</td>';
+      for (var i = 0; i < SCHEDULE.length; i++) {
+        var d = SCHEDULE[i];
+        aftenopvaskRow += '<td class="p-3 text-center ' + getColorClass(d.aftenopvask) + ' rounded-lg m-1"><span class="' + getTextColor(d.aftenopvask) + ' font-medium text-sm">' + (d.aftenopvask || '-') + '</span></td>';
+      }
+      aftenopvaskRow += '</tr>';
+
+      container.innerHTML = '<table class="w-full border-collapse"><thead>' + headerRow + '</thead><tbody>' + morgenmadRow + morgenopvaskRow + aftensmadRow + aftenopvaskRow + '</tbody></table>';
+    }
+
+    // Mobile schedule
+    function renderMobileSchedule() {
+      var container = document.getElementById('mobile-schedule');
+      var html = '';
+      
+      for (var i = 0; i < SCHEDULE.length; i++) {
+        var d = SCHEDULE[i];
+        var meal = meals[d.date] || '';
+        var isExpanded = expandedDays[i];
+        
+        html += '<div class="glass rounded-2xl border border-white/10 overflow-hidden">';
+        html += '<button onclick="toggleDay(' + i + ')" class="w-full p-4 flex items-center justify-between">';
+        html += '<div class="flex items-center gap-3">';
+        html += '<div class="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500 to-purple-500 flex items-center justify-center">';
+        html += '<span class="font-bold">' + d.date.split('/')[0] + '</span></div>';
+        html += '<div class="text-left"><p class="font-bold">' + d.day + '</p><p class="text-sm text-white/60">' + d.date + '</p></div></div>';
+        html += '<span class="text-xl transition-transform ' + (isExpanded ? 'rotate-180' : '') + '">⌄</span></button>';
+        
+        html += '<div class="' + (isExpanded ? '' : 'hidden') + ' px-4 pb-4 space-y-2">';
+        
+        if (d.morgenmad) {
+          html += '<div class="flex items-center justify-between p-2 rounded-lg ' + getColorClass(d.morgenmad) + '">';
+          html += '<span class="text-white/80">☕ Morgenmad</span>';
+          html += '<span class="' + getTextColor(d.morgenmad) + ' font-medium">' + d.morgenmad + '</span></div>';
+        }
+        
+        if (d.morgenopvask) {
+          html += '<div class="flex items-center justify-between p-2 rounded-lg ' + getColorClass(d.morgenopvask) + '">';
+          html += '<span class="text-white/80">✨ Morgenopvask</span>';
+          html += '<span class="' + getTextColor(d.morgenopvask) + ' font-medium">' + d.morgenopvask + '</span></div>';
+        }
+        
+        html += '<div class="p-2 rounded-lg ' + getColorClass(d.aftensmad) + '">';
+        html += '<div class="flex items-center justify-between">';
+        html += '<span class="text-white/80">👨‍🍳 Aftensmad</span>';
+        html += '<span class="' + getTextColor(d.aftensmad) + ' font-medium">' + d.aftensmad + '</span></div>';
+        if (meal) html += '<div class="text-sm text-white/70 mt-1 italic">🍽️ ' + meal + '</div>';
+        html += '</div>';
+        
+        html += '<div class="flex items-center justify-between p-2 rounded-lg ' + getColorClass(d.aftenopvask) + '">';
+        html += '<span class="text-white/80">🍽️ Aftenopvask</span>';
+        html += '<span class="' + getTextColor(d.aftenopvask) + ' font-medium">' + d.aftenopvask + '</span></div>';
+        
+        html += '</div></div>';
+      }
+      
+      container.innerHTML = html;
+    }
+
+    function toggleDay(i) {
+      expandedDays[i] = !expandedDays[i];
+      renderMobileSchedule();
+    }
+
+    // Meal plan
+    function renderMealPlan() {
+      var container = document.getElementById('meal-plan');
+      var html = '';
+      
+      for (var i = 0; i < SCHEDULE.length; i++) {
+        var d = SCHEDULE[i];
+        var colorClass = getColorClass(d.aftensmad);
+        var textColor = getTextColor(d.aftensmad);
+        var mealValue = meals[d.date] || '';
+        
+        html += '<div class="' + colorClass + ' rounded-2xl p-5 border border-white/10">';
+        html += '<div class="flex items-center gap-3 mb-4">';
+        html += '<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-lg">👨‍🍳</div>';
+        html += '<div><p class="font-bold">' + d.day + '</p><p class="text-sm text-white/60">' + d.date + '</p></div></div>';
+        html += '<div class="mb-3"><span class="' + textColor + ' font-semibold">' + d.aftensmad + '</span></div>';
+        html += '<input type="text" placeholder="Hvad skal vi have?" value="' + mealValue + '" ';
+        html += 'onchange="updateMeal(\'' + d.date + '\', this.value)" ';
+        html += 'oninput="updateMeal(\'' + d.date + '\', this.value)" ';
+        html += 'class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all">';
+        html += '</div>';
+      }
+      
+      container.innerHTML = html;
+    }
+
+    function updateMeal(date, value) {
+      meals[date] = value;
+      try {
+        localStorage.setItem('skiHubMeals', JSON.stringify(meals));
+      } catch (e) {}
+      renderDesktopSchedule();
+      renderMobileSchedule();
+    }
+
+    function copyMealPlan() {
+      var lines = [];
+      for (var i = 0; i < SCHEDULE.length; i++) {
+        var d = SCHEDULE[i];
+        var meal = meals[d.date] || '(ikke planlagt)';
+        lines.push(d.day + ' ' + d.date + ': ' + meal + ' - ' + d.aftensmad + ' laver mad');
+      }
+      var fullText = '🎿 MADPLAN SKIFERIE 2025 🎿\n\n' + lines.join('\n');
+      
+      navigator.clipboard.writeText(fullText).then(function() {
+        document.getElementById('copy-text').textContent = 'Kopieret! ✓';
+        setTimeout(function() {
+          document.getElementById('copy-text').textContent = 'Del madplan';
+        }, 2000);
+      });
+    }
+
+    // Bring items
+    function renderBringItems() {
+      var container = document.getElementById('bring-items');
+      var colors = {
+        rose: { bg: 'bg-rose-500/20', border: 'border-rose-400/30', dot: 'bg-rose-400' },
+        emerald: { bg: 'bg-emerald-500/20', border: 'border-emerald-400/30', dot: 'bg-emerald-400' },
+        sky: { bg: 'bg-sky-500/20', border: 'border-sky-400/30', dot: 'bg-sky-400' },
+        amber: { bg: 'bg-amber-500/20', border: 'border-amber-400/30', dot: 'bg-amber-400' },
+        violet: { bg: 'bg-violet-500/20', border: 'border-violet-400/30', dot: 'bg-violet-400' }
+      };
+      
+      var html = '';
+      var groups = Object.keys(BRING_ITEMS);
+      
+      for (var g = 0; g < groups.length; g++) {
+        var group = groups[g];
+        var data = BRING_ITEMS[group];
+        var c = colors[data.color];
+        var isExpanded = expandedBring[group];
+        
+        html += '<div class="' + c.bg + ' backdrop-blur-xl rounded-2xl border ' + c.border + ' overflow-hidden">';
+        html += '<button onclick="toggleBring(\'' + group + '\')" class="w-full p-5 flex items-center justify-between">';
+        html += '<div class="flex items-center gap-3"><span class="text-2xl">📦</span><span class="font-bold">' + group + '</span></div>';
+        html += '<div class="flex items-center gap-2"><span class="text-sm text-white/60">' + data.items.length + ' ting</span>';
+        html += '<span class="transition-transform ' + (isExpanded ? 'rotate-180' : '') + '">⌄</span></div></button>';
+        html += '<div class="' + (isExpanded ? '' : 'hidden') + ' px-5 pb-5 space-y-2">';
+        
+        for (var i = 0; i < data.items.length; i++) {
+          html += '<div class="flex items-center gap-2 text-white/80">';
+          html += '<div class="w-2 h-2 rounded-full ' + c.dot + '"></div>';
+          html += '<span class="text-sm">' + data.items[i] + '</span></div>';
+        }
+        
+        html += '</div></div>';
+      }
+      
+      container.innerHTML = html;
+    }
+
+    function toggleBring(group) {
+      expandedBring[group] = !expandedBring[group];
+      renderBringItems();
+    }
+
+    // Snowflakes
+    function createSnowflakes() {
+      var container = document.getElementById('snowflakes');
+      for (var i = 0; i < 15; i++) {
+        var flake = document.createElement('div');
+        flake.textContent = '❄';
+        flake.className = 'absolute text-white/10 animate-float';
+        flake.style.left = Math.random() * 100 + '%';
+        flake.style.top = Math.random() * 100 + '%';
+        flake.style.animationDelay = Math.random() * 5 + 's';
+        flake.style.fontSize = (12 + Math.random() * 16) + 'px';
+        container.appendChild(flake);
+      }
+    }
+
+    // Initialize
+    createSnowflakes();
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+    renderDesktopSchedule();
+    renderMobileSchedule();
+    renderMealPlan();
+    renderBringItems();
+  </script>
+</body>
+</html>
